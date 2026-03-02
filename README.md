@@ -1,59 +1,257 @@
-# Black-Scholes Option Pricing Platform
+Black-Scholes Option Pricing Platform
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
-![NumPy](https://img.shields.io/badge/NumPy-blue.svg)
-![SciPy](https://img.shields.io/badge/SciPy-blue.svg)
-![Streamlit](https://img.shields.io/badge/Streamlit-red.svg)
-![SQLite](https://img.shields.io/badge/SQLite-blue.svg)
-![Plotly](https://img.shields.io/badge/Plotly-green.svg)
-![pytest](https://img.shields.io/badge/pytest-blue.svg)
-![Build](https://img.shields.io/badge/Coverage-99%25-brightgreen.svg)
+A modular, production-style quantitative finance platform for pricing European options, computing Greeks, generating implied volatility surfaces, and analyzing portfolio risk in real time.
 
-## Overview
+Built with Python, NumPy, SciPy, Streamlit, SQLite, Plotly, and pytest.
 
-A robust, interactive platform for computing and visualizing European option prices, Greeks, and risk metrics using the Black-Scholes model. The application features a production-grade modular architecture, historical data storage, and an automated CI/CD pipeline.
+Overview
 
-### Key Features
-- **High-Performance Pricing:** Engineered and optimized pricing/risk models for European options, computing Greeks and volatility surfaces 5x faster.
-- **Interactive Dashboards:** Built interactive dashboards to visualize real-time P&L, sensitivities, and scenario-driven risk metrics for strategy development.
-- **Production-Grade Architecture:** Developed a production system with modular architecture, historical data store (SQLite), 99% test coverage (pytest), CI/CD pipeline, and logging.
+This project implements a fully vectorized Black-Scholes pricing engine with:
 
-## File Structure
+Closed-form option pricing (European calls & puts)
 
-```text
-Black-Scholes-Option-Pricing-Platform/
-├── .github/
-│   └── workflows/
-│       └── ci.yml                 # CI/CD pipeline configuration
-├── app/                           # Frontend Streamlit Application
-│   ├── __init__.py
-│   ├── main.py                    # Streamlit app entry point
-│   ├── dashboard.py               # Interactive dashboards (P&L, risk metrics)
-│   └── components.py              # Modular UI components
-├── data/
-│   └── historical_store.db        # SQLite historical data store
-├── logs/                          # System execution logs
-│   └── app.log                    # Target for logging module
-├── models/                        # Core Pricing & Risk Engines
-│   ├── __init__.py
-│   ├── black_scholes.py           # Pricing and Greeks computation
-│   └── volatility.py              # Volatility surface optimizations
-├── tests/                         # Test suite covering 99% of codebase
-│   ├── __init__.py
-│   ├── test_models.py             # pytest unit tests for pricing engine
-│   └── test_app.py                # UI and integration tests
-├── utils/
-│   ├── __init__.py
-│   ├── logging_setup.py           # Logging configuration
-│   └── visualizations.py          # Plotly chart generation (Sensitivities, etc.)
-├── requirements.txt               # Dependencies (NumPy, SciPy, Streamlit, etc.)
-└── README.md                      # Project documentation
-```
+Full analytic Greeks (Delta, Gamma, Vega, Theta, Rho)
 
-## Technologies
-* **Language:** Python
-* **Math & Computation:** NumPy, SciPy
-* **Web App Framework:** Streamlit
-* **Database:** SQLite
-* **Visualizations:** Plotly
-* **Testing:** pytest
+Implied volatility solver
+
+Volatility smile & surface visualization
+
+Portfolio risk aggregation
+
+Scenario-based P&L analysis
+
+SQLite-backed historical data storage
+
+CI-tested modular architecture
+
+The system is designed to resemble a lightweight production quant platform rather than a notebook prototype.
+
+Features
+1. Black-Scholes Pricing Engine
+
+Vectorized NumPy implementation
+
+Closed-form pricing
+
+Efficient reuse of intermediate calculations (d1, d2, etc.)
+
+Supports batch pricing across full option chains
+
+2. Greeks Engine
+
+Analytical computation of:
+
+Delta
+
+Gamma
+
+Vega
+
+Theta
+
+Rho
+
+Includes numerical finite-difference tests to validate analytic formulas.
+
+3. Implied Volatility Solver
+
+Uses SciPy root-finding methods
+
+Handles edge cases (no-solution bounds)
+
+Supports scalar and vectorized chain-level IV calculation
+
+4. Volatility Smile & Surface
+
+Compute IV across strikes and expiries
+
+2D volatility smile visualization
+
+3D volatility surface via Plotly
+
+Optional interpolation for missing grid points
+
+5. Portfolio & Risk Dashboard
+
+Aggregates portfolio-level Greeks
+
+Scenario-based stress testing:
+
+Spot shocks
+
+Volatility shifts
+
+Rate shifts
+
+Time decay
+
+P&L explain decomposition (Delta/Gamma/Vega approximation)
+
+6. Data Layer (SQLite)
+
+Stores:
+
+Underlying prices
+
+Interest rates
+
+Option chain quotes
+
+Portfolio positions
+
+Scenario definitions
+
+Designed for reproducibility and historical backtesting.
+
+Tech Stack
+
+Core Computation:
+
+Python
+
+NumPy
+
+SciPy
+
+Visualization:
+
+Streamlit
+
+Plotly
+
+Data:
+
+SQLite
+
+Testing & Dev:
+
+pytest
+
+GitHub Actions CI
+
+Architecture
+src/
+  bs/
+    pricing.py        # Black-Scholes pricing + Greeks
+    implied_vol.py    # IV solver
+    surface.py        # Volatility surface builder
+    risk.py           # Portfolio & scenario engine
+    models.py         # Data classes
+
+  data/
+    db.py             # SQLite interface
+    market_data.py    # Chain ingestion
+
+  app/
+    streamlit_app.py  # UI
+    components.py     # Plot components
+
+tests/
+.github/workflows/
+
+Design principles:
+
+Pure functions for pricing logic
+
+Vectorized computation (no Python loops for chains)
+
+Separation of pricing, data, and UI layers
+
+Testable core logic independent of frontend
+
+Installation
+
+Clone the repository:
+
+git clone https://github.com/yourusername/black-scholes-platform.git
+cd black-scholes-platform
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+Run the app:
+
+streamlit run src/app/streamlit_app.py
+Example Usage
+Price a European Call
+from bs.pricing import bs_price
+
+price = bs_price(
+    S=100,
+    K=105,
+    T=0.5,
+    r=0.02,
+    sigma=0.25,
+    option_type="call"
+)
+Compute Implied Volatility
+from bs.implied_vol import implied_vol
+
+iv = implied_vol(
+    market_price=3.50,
+    S=100,
+    K=105,
+    T=0.5,
+    r=0.02,
+    option_type="call"
+)
+Testing
+
+Run unit tests:
+
+pytest
+
+Coverage includes:
+
+Put-call parity validation
+
+Boundary behavior (T → 0)
+
+Monotonicity checks
+
+Finite-difference validation of Greeks
+
+CI enforces test coverage and prevents regression.
+
+Performance Notes
+
+Fully vectorized chain pricing using NumPy
+
+Shared intermediate term reuse
+
+Designed to scale across thousands of strikes and expiries
+
+Suitable for real-time dashboard refresh
+
+Future Extensions
+
+Dividend yield support
+
+American option approximation
+
+Local volatility calibration
+
+Heston model extension
+
+Live market data API integration
+
+Risk-neutral density extraction
+
+Why This Project?
+
+This platform demonstrates:
+
+Quantitative modeling (derivatives theory)
+
+Numerical methods (root-finding, interpolation)
+
+Software architecture design
+
+Production-style engineering practices
+
+Data persistence & reproducibility
+
+Interactive financial visualization
+
+It bridges quantitative finance and full-stack engineering in a clean, extensible system.
